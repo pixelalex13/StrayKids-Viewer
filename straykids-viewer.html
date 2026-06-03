@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SKZ ★ Viewer</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --surface: #111118;
+  --card: #18181f;
+  --accent: #ff3c5f;
+  --accent2: #ff9d00;
+  --text: #f0eeff;
+  --muted: #6b6a80;
+  --border: #2a2a38;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Noto Sans KR', sans-serif;
+  min-height: 100vh;
+}
+
+/* ── SETUP SCREEN ── */
+#setup-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem;
+  background: radial-gradient(ellipse at 50% 0%, #2a0a14 0%, var(--bg) 70%);
+}
+.setup-box {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2.5rem 2rem;
+  max-width: 480px;
+  width: 100%;
+}
+.setup-logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 3rem;
+  letter-spacing: 0.1em;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-align: center;
+  margin-bottom: 0.3rem;
+}
+.setup-sub {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--muted);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 2rem;
+}
+.setup-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+  display: block;
+}
+.setup-input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.8rem 1rem;
+  color: var(--text);
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 0.85rem;
+  outline: none;
+  transition: border-color 0.2s;
+  margin-bottom: 1rem;
+}
+.setup-input:focus { border-color: var(--accent); }
+.setup-btn {
+  width: 100%;
+  background: linear-gradient(90deg, var(--accent), #c0224a);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.9rem;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.setup-btn:hover { opacity: 0.85; }
+.setup-steps {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+.setup-steps h3 {
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.8rem;
+}
+.step {
+  display: flex;
+  gap: 0.8rem;
+  align-items: flex-start;
+  margin-bottom: 0.7rem;
+}
+.step-num {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+.step p { font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
+.step a { color: var(--accent); text-decoration: none; }
+.step a:hover { text-decoration: underline; }
+.setup-error {
+  background: rgba(255,60,95,0.1);
+  border: 1px solid rgba(255,60,95,0.3);
+  border-radius: 6px;
+  padding: 0.7rem 1rem;
+  font-size: 0.78rem;
+  color: #ff8099;
+  margin-bottom: 1rem;
+  display: none;
+}
+
+/* ── MAIN APP ── */
+#app { display: none; height: 100vh; flex-direction: column; }
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.8rem 1.2rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+.header-logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.6rem;
+  letter-spacing: 0.1em;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  flex-shrink: 0;
+}
+.search-wrap {
+  flex: 1;
+  min-width: 160px;
+  position: relative;
+}
+.search-wrap input {
+  width: 100%;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 0.5rem 1rem 0.5rem 2.2rem;
+  color: var(--text);
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 0.82rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.search-wrap input:focus { border-color: var(--accent); }
+.search-wrap::before {
+  content: '🔍';
+  position: absolute;
+  left: 0.7rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.75rem;
+  pointer-events: none;
+}
+.header-count {
+  font-size: 0.7rem;
+  color: var(--muted);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.channel-tabs {
+  display: flex;
+  gap: 0.3rem;
+  flex-shrink: 0;
+}
+.ch-tab {
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-family: 'Noto Sans KR', sans-serif;
+  color: var(--muted);
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 0.3rem 0.75rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+.ch-tab:hover { color: var(--text); border-color: var(--muted); }
+.ch-tab.active { color: var(--accent); border-color: var(--accent); background: rgba(255,60,95,0.08); }
+
+/* Content */
+.content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Player pane */
+.player-pane {
+  width: 0;
+  flex-shrink: 0;
+  background: #000;
+  transition: width 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-right: 1px solid var(--border);
+}
+.player-pane.open {
+  width: 480px;
+}
+@media (max-width: 700px) {
+  .player-pane.open {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    z-index: 200;
+  }
+  .player-close { display: flex !important; }
+}
+.player-close {
+  display: none;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0.5rem 0.8rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.player-close button {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+}
+.player-close button:hover { color: var(--text); }
+.player-embed-wrap {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%;
+  background: #000;
+  flex-shrink: 0;
+}
+.player-embed-wrap iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+.player-info {
+  padding: 1rem;
+  overflow-y: auto;
+  flex: 1;
+}
+.player-info h3 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.4;
+  margin-bottom: 0.4rem;
+}
+.player-info p {
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+/* Videos pane */
+.videos-pane {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+/* Loading banner */
+.load-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.7rem 1rem;
+  background: rgba(255,60,95,0.08);
+  border: 1px solid rgba(255,60,95,0.2);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 0.78rem;
+  color: var(--accent);
+}
+.mini-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,60,95,0.3);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Grid */
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.9rem;
+}
+
+.video-card {
+  cursor: pointer;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--card);
+  border: 1px solid var(--border);
+  transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+.video-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255,60,95,0.5);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+}
+.video-card.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+.thumb-wrap {
+  position: relative;
+  padding-bottom: 56.25%;
+  background: #111;
+}
+.thumb-wrap img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.play-btn {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0);
+  transition: background 0.15s;
+}
+.video-card:hover .play-btn { background: rgba(0,0,0,0.35); }
+.play-icon {
+  width: 34px;
+  height: 34px;
+  background: rgba(255,60,95,0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(0.85);
+  transition: opacity 0.15s, transform 0.15s;
+}
+.play-icon svg { width: 13px; fill: white; margin-left: 2px; }
+.video-card:hover .play-icon,
+.video-card.active .play-icon { opacity: 1; transform: scale(1); }
+
+.video-meta {
+  padding: 0.55rem 0.65rem 0.65rem;
+}
+.video-meta h4 {
+  font-size: 0.73rem;
+  font-weight: 700;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.video-meta .date {
+  font-size: 0.62rem;
+  color: var(--muted);
+  margin-top: 0.25rem;
+  display: block;
+}
+
+/* Load more */
+.load-more-wrap {
+  text-align: center;
+  padding: 1.5rem 0 2rem;
+}
+.load-more-btn {
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.7rem 2rem;
+  border-radius: 20px;
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+.load-more-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+.no-results {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ SETUP SCREEN ═══ -->
+<div id="setup-screen">
+  <div class="setup-box">
+    <div class="setup-logo">STRAY KIDS</div>
+    <div class="setup-sub">스트레이 키즈 · Full Channel Viewer</div>
+
+    <div class="setup-error" id="setup-error"></div>
+
+    <label class="setup-label" for="api-input">YouTube API Key</label>
+    <input class="setup-input" id="api-input" type="text" placeholder="AIza..." autocomplete="off" autocorrect="off" spellcheck="false">
+    <button class="setup-btn" onclick="saveKey()">STARTEN ▶</button>
+
+    <div class="setup-steps">
+      <h3>Einmalige Einrichtung — kostenlos</h3>
+      <div class="step">
+        <div class="step-num">1</div>
+        <p>Geh auf <a href="https://console.cloud.google.com/" target="_blank">console.cloud.google.com</a> und erstelle ein neues Projekt (oben links).</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <p>Suche nach „YouTube Data API v3" und aktiviere sie.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <p>Geh zu <b>APIs & Dienste → Anmeldedaten → API-Schlüssel erstellen</b>. Den Key kopieren und oben einfügen.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MAIN APP ═══ -->
+<div id="app">
+  <div class="header">
+    <div class="header-logo">SKZ</div>
+    <div class="channel-tabs">
+      <button class="ch-tab active" onclick="switchChannel('all', this)">Alle</button>
+      <button class="ch-tab" onclick="switchChannel('main', this)">🌍 Main</button>
+      <button class="ch-tab" onclick="switchChannel('japan', this)">🇯🇵 Japan</button>
+      <button class="ch-tab" onclick="switchChannel('jyp', this)">🎵 JYP</button>
+    </div>
+    <div class="search-wrap">
+      <input type="text" id="search-input" placeholder="Video suchen…" oninput="filterVideos()">
+    </div>
+    <div class="header-count" id="header-count">Laden…</div>
+  </div>
+
+  <div class="content">
+    <!-- Player -->
+    <div class="player-pane" id="player-pane">
+      <div class="player-close"><button onclick="closePlayer()">✕ Schließen</button></div>
+      <div class="player-embed-wrap">
+        <iframe id="player-iframe" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+      <div class="player-info">
+        <h3 id="player-title">—</h3>
+        <p id="player-date">—</p>
+      </div>
+    </div>
+
+    <!-- Videos -->
+    <div class="videos-pane" id="videos-pane">
+      <div class="load-banner" id="load-banner">
+        <div class="mini-spinner"></div>
+        <span id="load-text">Kanal wird geladen…</span>
+      </div>
+      <div class="video-grid" id="video-grid"></div>
+      <div class="load-more-wrap" id="load-more-wrap" style="display:none;">
+        <button class="load-more-btn" onclick="fetchNextPage()">Mehr laden…</button>
+      </div>
+      <div class="no-results" id="no-results" style="display:none;">Keine Videos gefunden.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const CHANNELS = {
+  main:  { id: 'UC9rMiEjNaCSsebs31MRDCRA', label: 'Main',  playlist: 'UU9rMiEjNaCSsebs31MRDCRA' },
+  japan: { id: 'UCXhj2pPWvONXmvgHX5wllCA', label: 'Japan', playlist: 'UUXhj2pPWvONXmvgHX5wllCA' },
+  jyp:   { label: 'JYP',   playlist: 'PL9K3xwFkFqWEUOC39i3GD1mio7QMGveuU' },
+};
+const API_KEY = 'AIzaSyDLEWmtYLea8lWLaPe3CIC-JeQrDi5e974';
+const PAGE_SIZE = 50;
+const DISPLAY_BATCH = 50;
+
+const state = {
+  main:  { videos: [], nextToken: null, done: false, fetching: false },
+  japan: { videos: [], nextToken: null, done: false, fetching: false },
+  jyp:   { videos: [], nextToken: null, done: false, fetching: false },
+};
+
+let allVideos = [];       // merged & sorted
+let filteredVideos = [];
+let displayedCount = 0;
+let activeId = null;
+let activeChannel = 'all'; // 'all' | 'main' | 'japan' | 'jyp'
+
+window.onload = () => {
+  document.getElementById('setup-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  fetchChannel('main');
+  fetchChannel('japan');
+  fetchChannel('jyp');
+};
+
+// ── FETCH ──
+async function fetchChannel(ch) {
+  const s = state[ch];
+  if (s.fetching || s.done) return;
+  s.fetching = true;
+
+  const url = new URL('https://www.googleapis.com/youtube/v3/playlistItems');
+  url.searchParams.set('part', 'snippet');
+  url.searchParams.set('playlistId', CHANNELS[ch].playlist);
+  url.searchParams.set('maxResults', PAGE_SIZE);
+  url.searchParams.set('key', API_KEY);
+  if (s.nextToken) url.searchParams.set('pageToken', s.nextToken);
+
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (data.error) {
+      document.getElementById('load-text').textContent = 'API-Fehler: ' + data.error.message;
+      s.fetching = false;
+      return;
+    }
+
+    const items = (data.items || [])
+      .filter(i => i.snippet.resourceId?.kind === 'youtube#video')
+      .map(i => ({
+        id:      i.snippet.resourceId.videoId,
+        title:   i.snippet.title,
+        date:    i.snippet.publishedAt ? i.snippet.publishedAt.slice(0, 10) : '',
+        thumb:   (i.snippet.thumbnails?.medium || i.snippet.thumbnails?.default)?.url || '',
+        channel: ch,
+      }))
+      .filter(v => v.title !== 'Private video' && v.title !== 'Deleted video');
+
+    s.videos.push(...items);
+    s.nextToken = data.nextPageToken || null;
+    if (!s.nextToken) s.done = true;
+
+    rebuildAll();
+    applyFilter();
+    refreshGrid();
+    updateStatus();
+
+    s.fetching = false;
+    if (!s.done) setTimeout(() => fetchChannel(ch), 250);
+
+  } catch (e) {
+    s.fetching = false;
+    document.getElementById('load-text').textContent = 'Netzwerkfehler – bitte neu laden.';
+  }
+}
+
+function rebuildAll() {
+  allVideos = [...state.main.videos, ...state.japan.videos, ...state.jyp.videos]
+    .sort((a, b) => (b.date > a.date ? 1 : b.date < a.date ? -1 : 0));
+}
+
+function updateStatus() {
+  const allDone = state.main.done && state.japan.done && state.jyp.done;
+  const total = state.main.videos.length + state.japan.videos.length + state.jyp.videos.length;
+  const banner = document.getElementById('load-banner');
+  const loadText = document.getElementById('load-text');
+  if (allDone) {
+    loadText.textContent = `Alle ${total} Videos geladen.`;
+    setTimeout(() => banner.style.display = 'none', 1500);
+  } else {
+    loadText.textContent = `${total} Videos geladen…`;
+  }
+  updateCount();
+}
+
+// ── CHANNEL SWITCH ──
+function switchChannel(ch, btn) {
+  activeChannel = ch;
+  document.querySelectorAll('.ch-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilter();
+  document.getElementById('video-grid').innerHTML = '';
+  displayedCount = 0;
+  renderMore();
+  updateCount();
+}
+
+// ── FILTER & RENDER ──
+function applyFilter() {
+  const q = document.getElementById('search-input').value.trim().toLowerCase();
+  let source = activeChannel === 'all'   ? allVideos
+             : activeChannel === 'main'  ? state.main.videos
+             : activeChannel === 'japan' ? state.japan.videos
+             : state.jyp.videos;
+  filteredVideos = q ? source.filter(v => v.title.toLowerCase().includes(q)) : source;
+  displayedCount = 0;
+}
+
+function filterVideos() {
+  applyFilter();
+  document.getElementById('video-grid').innerHTML = '';
+  renderMore();
+  document.getElementById('no-results').style.display =
+    filteredVideos.length === 0 ? 'block' : 'none';
+}
+
+function refreshGrid() {
+  // only append newly loaded items without wiping the grid
+  const grid = document.getElementById('video-grid');
+  const end = Math.min(displayedCount + DISPLAY_BATCH, filteredVideos.length);
+  for (let i = displayedCount; i < end; i++) {
+    grid.appendChild(makeCard(filteredVideos[i]));
+  }
+  displayedCount = end;
+  updateLoadMore();
+}
+
+function renderMore() {
+  const grid = document.getElementById('video-grid');
+  const end = Math.min(displayedCount + DISPLAY_BATCH, filteredVideos.length);
+  for (let i = displayedCount; i < end; i++) {
+    grid.appendChild(makeCard(filteredVideos[i]));
+  }
+  displayedCount = end;
+  updateLoadMore();
+}
+
+function updateLoadMore() {
+  const hasMore = displayedCount < filteredVideos.length;
+  const wrap = document.getElementById('load-more-wrap');
+  if (hasMore) {
+    wrap.style.display = 'block';
+    wrap.querySelector('button').textContent =
+      `Mehr laden (${filteredVideos.length - displayedCount} weitere)`;
+  } else {
+    wrap.style.display = 'none';
+  }
+}
+
+function makeCard(v) {
+  const card = document.createElement('div');
+  card.className = 'video-card' + (v.id === activeId ? ' active' : '');
+  card.id = 'card-' + v.id;
+  const badge = v.channel === 'japan' ? `<span style="position:absolute;top:5px;left:5px;background:rgba(0,0,0,0.7);color:#ff9d00;font-size:0.58rem;font-weight:700;padding:1px 5px;border-radius:3px;letter-spacing:0.05em;">🇯🇵 JP</span>`
+              : v.channel === 'jyp'   ? `<span style="position:absolute;top:5px;left:5px;background:rgba(0,0,0,0.7);color:#a78bfa;font-size:0.58rem;font-weight:700;padding:1px 5px;border-radius:3px;letter-spacing:0.05em;">JYP</span>`
+              : '';
+  card.innerHTML = `
+    <div class="thumb-wrap">
+      <img src="${v.thumb}" alt="" loading="lazy">
+      ${badge}
+      <div class="play-btn">
+        <div class="play-icon">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </div>
+      </div>
+    </div>
+    <div class="video-meta">
+      <h4>${escHtml(v.title)}</h4>
+      <span class="date">${formatDate(v.date)}</span>
+    </div>`;
+  card.addEventListener('click', () => playVideo(v));
+  return card;
+}
+
+function updateCount() {
+  const shown = activeChannel === 'all'   ? allVideos.length
+              : activeChannel === 'main'  ? state.main.videos.length
+              : activeChannel === 'japan' ? state.japan.videos.length
+              : state.jyp.videos.length;
+  const loading = activeChannel === 'all'   ? !(state.main.done && state.japan.done && state.jyp.done)
+                : activeChannel === 'main'  ? !state.main.done
+                : activeChannel === 'japan' ? !state.japan.done
+                : !state.jyp.done;
+  document.getElementById('header-count').textContent =
+    shown + ' Videos' + (loading ? ' (lädt…)' : '');
+}
+
+// ── PLAYER ──
+function playVideo(v) {
+  activeId = v.id;
+  document.querySelectorAll('.video-card.active').forEach(c => c.classList.remove('active'));
+  const card = document.getElementById('card-' + v.id);
+  if (card) card.classList.add('active');
+  document.getElementById('player-iframe').src =
+    `https://www.youtube-nocookie.com/embed/${v.id}?autoplay=1&rel=0&modestbranding=1`;
+  document.getElementById('player-title').textContent = v.title;
+  document.getElementById('player-date').textContent = formatDate(v.date);
+  document.getElementById('player-pane').classList.add('open');
+}
+
+function closePlayer() {
+  document.getElementById('player-pane').classList.remove('open');
+  document.getElementById('player-iframe').src = '';
+  activeId = null;
+  document.querySelectorAll('.video-card.active').forEach(c => c.classList.remove('active'));
+}
+
+// ── HELPERS ──
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function formatDate(d) {
+  if (!d) return '';
+  const [y, m, day] = d.split('-');
+  const months = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+  return `${parseInt(day)}. ${months[parseInt(m)-1]} ${y}`;
+}
+</script>
+</body>
+</html>
