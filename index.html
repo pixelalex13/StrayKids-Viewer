@@ -3,492 +3,221 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SKZ ★ Viewer</title>
+<title>SKZ Full Viewer</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg: #0a0a0f;
-  --surface: #111118;
-  --card: #18181f;
-  --accent: #ff3c5f;
-  --accent2: #ff9d00;
-  --text: #f0eeff;
-  --muted: #6b6a80;
-  --border: #2a2a38;
+:root{--bg:#0a0a0f;--surface:#111118;--card:#18181f;--accent:#ff3c5f;--accent2:#ff9d00;--text:#f0eeff;--muted:#6b6a80;--border:#2a2a38;}
+*{margin:0;padding:0;box-sizing:border-box;}html,body{height:100%;}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;}
+#app{display:none;height:100vh;flex-direction:column;}
+
+.header{display:flex;align-items:center;gap:0.7rem;padding:0.7rem 1.2rem;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap;}
+.header-logo{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:0.1em;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;flex-shrink:0;}
+.ch-tabs{display:flex;gap:0.3rem;flex-shrink:0;flex-wrap:wrap;}
+.ch-tab{font-size:0.72rem;font-weight:700;font-family:'Noto Sans KR',sans-serif;color:var(--muted);background:none;border:1px solid var(--border);border-radius:20px;padding:0.28rem 0.75rem;cursor:pointer;white-space:nowrap;transition:all 0.15s;}
+.ch-tab:hover{color:var(--text);border-color:var(--muted);}
+.ch-tab.active{color:var(--accent);border-color:var(--accent);background:rgba(255,60,95,0.08);}
+.search-wrap{flex:1;min-width:130px;position:relative;}
+.search-wrap input{width:100%;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:0.45rem 1rem 0.45rem 2.1rem;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:0.82rem;outline:none;transition:border-color 0.2s;}
+.search-wrap input:focus{border-color:var(--accent);}
+.search-wrap::before{content:'🔍';position:absolute;left:0.7rem;top:50%;transform:translateY(-50%);font-size:0.73rem;pointer-events:none;}
+.header-count{font-size:0.68rem;color:var(--muted);flex-shrink:0;white-space:nowrap;}
+
+.filter-bar{display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;padding:0.5rem 1.2rem;background:var(--bg);border-bottom:1px solid var(--border);flex-shrink:0;}
+.filter-label{font-size:0.62rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;flex-shrink:0;}
+.filter-sep{width:1px;height:16px;background:var(--border);flex-shrink:0;}
+.f-btn{font-size:0.7rem;font-weight:700;font-family:'Noto Sans KR',sans-serif;color:var(--muted);background:none;border:1px solid var(--border);border-radius:20px;padding:0.22rem 0.7rem;cursor:pointer;white-space:nowrap;transition:all 0.15s;}
+.f-btn:hover{color:var(--text);border-color:var(--muted);}
+.f-btn.type-active{color:var(--text);border-color:var(--text);background:rgba(255,255,255,0.07);}
+.f-btn.heart-active{color:#ff3c5f;border-color:#ff3c5f;background:rgba(255,60,95,0.1);}
+.f-btn.sv-btn{color:var(--accent);border-color:var(--accent);}
+.f-btn.sv-btn:hover{background:rgba(255,60,95,0.1);}
+
+.content{display:flex;flex:1;overflow:hidden;}
+
+.player-pane{width:0;flex-shrink:0;background:#000;transition:width 0.3s ease;display:flex;flex-direction:column;overflow:hidden;border-right:1px solid var(--border);}
+.player-pane.open{width:480px;}
+@media(max-width:700px){.player-pane.open{position:fixed;inset:0;width:100%;z-index:200;}.player-close{display:flex!important;}}
+.player-close{display:none;align-items:center;justify-content:flex-end;padding:0.5rem 0.8rem;background:var(--surface);border-bottom:1px solid var(--border);}
+.player-close button{background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;padding:0.2rem 0.4rem;}
+.player-close button:hover{color:var(--text);}
+.player-embed-wrap{position:relative;width:100%;padding-bottom:56.25%;background:#000;flex-shrink:0;}
+.player-embed-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:none;}
+.player-info{padding:1rem;overflow-y:auto;flex:1;}
+.player-info h3{font-size:0.9rem;font-weight:700;line-height:1.4;margin-bottom:0.5rem;}
+.player-meta-row{display:flex;align-items:center;gap:0.7rem;flex-wrap:wrap;}
+.player-date{font-size:0.72rem;color:var(--muted);}
+.player-heart-btn{background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:20px;color:var(--muted);font-size:0.78rem;padding:0.22rem 0.85rem;cursor:pointer;transition:all 0.15s;flex-shrink:0;font-family:'Noto Sans KR',sans-serif;}
+.player-heart-btn:hover{border-color:var(--accent);color:var(--accent);}
+.player-heart-btn.hearted{color:var(--accent);border-color:var(--accent);background:rgba(255,60,95,0.12);}
+
+.videos-pane{flex:1;overflow-y:auto;padding:1rem;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
+.load-banner{display:flex;align-items:center;gap:0.8rem;padding:0.7rem 1rem;background:rgba(255,60,95,0.08);border:1px solid rgba(255,60,95,0.2);border-radius:8px;margin-bottom:1rem;font-size:0.78rem;color:var(--accent);}
+.mini-spinner{width:16px;height:16px;border:2px solid rgba(255,60,95,0.3);border-top-color:var(--accent);border-radius:50%;animation:spin 0.6s linear infinite;flex-shrink:0;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.video-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:0.9rem;}
+.video-card{cursor:pointer;border-radius:8px;overflow:hidden;background:var(--card);border:1px solid var(--border);transition:transform 0.15s,border-color 0.15s,box-shadow 0.15s;}
+.video-card:hover{transform:translateY(-2px);border-color:rgba(255,60,95,0.5);box-shadow:0 6px 20px rgba(0,0,0,0.4);}
+.video-card.active{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);}
+.thumb-wrap{position:relative;padding-bottom:56.25%;background:#111;}
+.thumb-wrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.play-btn{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0);transition:background 0.15s;}
+.video-card:hover .play-btn{background:rgba(0,0,0,0.35);}
+.play-icon{width:34px;height:34px;background:rgba(255,60,95,0.9);border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transform:scale(0.85);transition:opacity 0.15s,transform 0.15s;}
+.play-icon svg{width:13px;fill:white;margin-left:2px;}
+.video-card:hover .play-icon,.video-card.active .play-icon{opacity:1;transform:scale(1);}
+.heart-btn{position:absolute;top:5px;right:5px;width:28px;height:28px;background:rgba(0,0,0,0.6);border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.85rem;cursor:pointer;opacity:0;transform:scale(0.8);transition:opacity 0.15s,transform 0.15s,background 0.15s;z-index:10;line-height:1;}
+.video-card:hover .heart-btn{opacity:1;transform:scale(1);}
+.heart-btn.hearted{opacity:1;transform:scale(1);background:rgba(255,60,95,0.85);}
+.heart-btn:hover{background:rgba(255,60,95,0.95)!important;transform:scale(1.15)!important;}
+.video-meta{padding:0.55rem 0.65rem 0.65rem;}
+.video-meta h4{font-size:0.73rem;font-weight:700;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.video-meta .date{font-size:0.62rem;color:var(--muted);margin-top:0.25rem;display:block;}
+.load-more-wrap{text-align:center;padding:1.5rem 0 2rem;}
+.load-more-btn{background:var(--card);border:1px solid var(--border);color:var(--text);padding:0.7rem 2rem;border-radius:20px;font-family:'Noto Sans KR',sans-serif;font-size:0.82rem;cursor:pointer;transition:border-color 0.2s,color 0.2s;}
+.load-more-btn:hover{border-color:var(--accent);color:var(--accent);}
+.no-results{text-align:center;padding:3rem 1rem;color:var(--muted);font-size:0.85rem;}
+
+/* ═══════════ SHORTS VIEWER ═══════════
+   Layout: 3 rows — topbar | video | bottombar
+   NOTHING overlaps the iframe → all YT controls stay accessible
+   Swipe zones: topbar + bottombar (outside iframe)
+   Wheel: whole overlay (bg areas beside iframe)
+*/
+#sv-overlay{
+  position:fixed;inset:0;z-index:500;
+  background:#000;
+  display:none;flex-direction:column;
+  align-items:center;
+  overflow:hidden;
 }
-* { margin: 0; padding: 0; box-sizing: border-box; }
-html, body { height: 100%; }
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Noto Sans KR', sans-serif;
-  min-height: 100vh;
+#sv-overlay.open{display:flex;}
+
+/* TOP BAR — swipe zone + controls */
+.sv-top{
+  width:100%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0.7rem 1rem;
+  background:rgba(0,0,0,0.6);
+  z-index:10;
+  /* touch events land here → swipe works */
+  touch-action:none;
+}
+.sv-top-left{display:flex;align-items:center;gap:0.8rem;}
+.sv-brand{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:0.1em;color:white;}
+.sv-counter{font-size:0.72rem;color:rgba(255,255,255,0.55);letter-spacing:0.05em;}
+.sv-close-btn{background:rgba(255,255,255,0.12);border:none;color:white;width:32px;height:32px;border-radius:50%;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.15s;flex-shrink:0;}
+.sv-close-btn:hover{background:rgba(255,255,255,0.25);}
+
+/* VIDEO AREA — iframe takes exactly 9:16, centered */
+.sv-video-wrap{
+  flex:1;
+  display:flex;align-items:center;justify-content:center;
+  width:100%;
+  min-height:0;
+  overflow:hidden;
+  /* wheel events from sides of this area (bg) will reach #sv-overlay */
+}
+.sv-iframe-box{
+  /* 9:16 ratio, max fills available space */
+  aspect-ratio:9/16;
+  height:100%;
+  max-height:100%;
+  max-width:100%;
+  position:relative;
+  overflow:hidden;
+  flex-shrink:0;
+}
+@media(orientation:landscape){
+  /* on landscape, constrain by width instead */
+  .sv-iframe-box{width:auto;height:100%;}
+}
+.sv-iframe-box iframe{
+  width:100%;height:100%;border:none;display:block;
 }
 
-/* ── SETUP SCREEN ── */
-#setup-screen {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  padding: 2rem;
-  background: radial-gradient(ellipse at 50% 0%, #2a0a14 0%, var(--bg) 70%);
-}
-.setup-box {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 2.5rem 2rem;
-  max-width: 480px;
-  width: 100%;
-}
-.setup-logo {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 3rem;
-  letter-spacing: 0.1em;
-  background: linear-gradient(90deg, var(--accent), var(--accent2));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-align: center;
-  margin-bottom: 0.3rem;
-}
-.setup-sub {
-  text-align: center;
-  font-size: 0.75rem;
-  color: var(--muted);
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  margin-bottom: 2rem;
-}
-.setup-label {
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 0.5rem;
-  display: block;
-}
-.setup-input {
-  width: 100%;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 0.8rem 1rem;
-  color: var(--text);
-  font-family: 'Noto Sans KR', sans-serif;
-  font-size: 0.85rem;
-  outline: none;
-  transition: border-color 0.2s;
-  margin-bottom: 1rem;
-}
-.setup-input:focus { border-color: var(--accent); }
-.setup-btn {
-  width: 100%;
-  background: linear-gradient(90deg, var(--accent), #c0224a);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 0.9rem;
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 1.1rem;
-  letter-spacing: 0.12em;
-  cursor: pointer;
-  transition: opacity 0.2s;
-}
-.setup-btn:hover { opacity: 0.85; }
-.setup-steps {
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--border);
-}
-.setup-steps h3 {
-  font-size: 0.72rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 0.8rem;
-}
-.step {
-  display: flex;
-  gap: 0.8rem;
-  align-items: flex-start;
-  margin-bottom: 0.7rem;
-}
-.step-num {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: var(--accent);
-  color: white;
-  font-size: 0.65rem;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  margin-top: 0.1rem;
-}
-.step p { font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
-.step a { color: var(--accent); text-decoration: none; }
-.step a:hover { text-decoration: underline; }
-.setup-error {
-  background: rgba(255,60,95,0.1);
-  border: 1px solid rgba(255,60,95,0.3);
-  border-radius: 6px;
-  padding: 0.7rem 1rem;
-  font-size: 0.78rem;
-  color: #ff8099;
-  margin-bottom: 1rem;
-  display: none;
-}
+/* Slide animations — applied to the iframe box */
+.sv-exit-up   {animation:svExitUp   0.26s cubic-bezier(.4,0,.2,1) forwards;}
+.sv-exit-down {animation:svExitDown 0.26s cubic-bezier(.4,0,.2,1) forwards;}
+.sv-enter-up  {animation:svEnterUp  0.26s cubic-bezier(.4,0,.2,1) forwards;}
+.sv-enter-down{animation:svEnterDown 0.26s cubic-bezier(.4,0,.2,1) forwards;}
+@keyframes svExitUp   {to{transform:translateY(-108%);opacity:0;}}
+@keyframes svExitDown {to{transform:translateY(108%);opacity:0;}}
+@keyframes svEnterUp  {from{transform:translateY(108%);opacity:0;}to{transform:translateY(0);opacity:1;}}
+@keyframes svEnterDown{from{transform:translateY(-108%);opacity:0;}to{transform:translateY(0);opacity:1;}}
 
-/* ── MAIN APP ── */
-#app { display: none; height: 100vh; flex-direction: column; }
+/* BOTTOM BAR — swipe zone + heart + title + nav */
+.sv-bottom{
+  width:100%;flex-shrink:0;
+  background:rgba(0,0,0,0.75);
+  padding:0.6rem 1rem;
+  touch-action:none; /* swipe detected here */
+  display:flex;flex-direction:column;gap:0.5rem;
+}
+.sv-bottom-row1{
+  display:flex;align-items:center;gap:0.8rem;
+}
+.sv-heart-btn{
+  background:none;border:2px solid rgba(255,255,255,0.3);
+  border-radius:50%;width:44px;height:44px;flex-shrink:0;
+  font-size:1.3rem;cursor:pointer;color:white;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.15s;
+}
+.sv-heart-btn:hover{border-color:var(--accent);background:rgba(255,60,95,0.15);}
+.sv-heart-btn.hearted{border-color:var(--accent);background:rgba(255,60,95,0.25);animation:svHeartPop 0.3s ease;}
+@keyframes svHeartPop{0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
+.sv-title{font-size:0.82rem;font-weight:700;color:white;flex:1;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.3;}
+.sv-nav-btns{display:flex;gap:0.4rem;flex-shrink:0;}
+.sv-nav-btn{
+  background:rgba(255,255,255,0.12);border:none;color:white;
+  width:36px;height:36px;border-radius:50%;font-size:0.9rem;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.15s;
+}
+.sv-nav-btn:hover{background:rgba(255,255,255,0.25);}
+.sv-nav-btn:disabled{opacity:0.25;cursor:default;}
+.sv-date{font-size:0.65rem;color:rgba(255,255,255,0.45);padding-left:0.2rem;}
 
-/* Header */
-.header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.8rem 1.2rem;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-  flex-wrap: wrap;
-  gap: 0.8rem;
+/* Swipe hint arrow */
+.sv-swipe-hint{
+  position:absolute;left:50%;transform:translateX(-50%);
+  font-size:0.6rem;color:rgba(255,255,255,0.25);letter-spacing:0.08em;text-transform:uppercase;
+  pointer-events:none;animation:svFadeHint 3s ease 1s forwards;
 }
-.header-logo {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 1.6rem;
-  letter-spacing: 0.1em;
-  background: linear-gradient(90deg, var(--accent), var(--accent2));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  flex-shrink: 0;
-}
-.search-wrap {
-  flex: 1;
-  min-width: 160px;
-  position: relative;
-}
-.search-wrap input {
-  width: 100%;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 0.5rem 1rem 0.5rem 2.2rem;
-  color: var(--text);
-  font-family: 'Noto Sans KR', sans-serif;
-  font-size: 0.82rem;
-  outline: none;
-  transition: border-color 0.2s;
-}
-.search-wrap input:focus { border-color: var(--accent); }
-.search-wrap::before {
-  content: '🔍';
-  position: absolute;
-  left: 0.7rem;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 0.75rem;
-  pointer-events: none;
-}
-.header-count {
-  font-size: 0.7rem;
-  color: var(--muted);
-  flex-shrink: 0;
-  white-space: nowrap;
-}
-.channel-tabs {
-  display: flex;
-  gap: 0.3rem;
-  flex-shrink: 0;
-}
-.ch-tab {
-  font-size: 0.72rem;
-  font-weight: 700;
-  font-family: 'Noto Sans KR', sans-serif;
-  color: var(--muted);
-  background: none;
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 0.3rem 0.75rem;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.15s;
-}
-.ch-tab:hover { color: var(--text); border-color: var(--muted); }
-.ch-tab.active { color: var(--accent); border-color: var(--accent); background: rgba(255,60,95,0.08); }
-
-/* Content */
-.content {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-}
-
-/* Player pane */
-.player-pane {
-  width: 0;
-  flex-shrink: 0;
-  background: #000;
-  transition: width 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  border-right: 1px solid var(--border);
-}
-.player-pane.open {
-  width: 480px;
-}
-@media (max-width: 700px) {
-  .player-pane.open {
-    position: fixed;
-    inset: 0;
-    width: 100%;
-    z-index: 200;
-  }
-  .player-close { display: flex !important; }
-}
-.player-close {
-  display: none;
-  align-items: center;
-  justify-content: flex-end;
-  padding: 0.5rem 0.8rem;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-}
-.player-close button {
-  background: none;
-  border: none;
-  color: var(--muted);
-  font-size: 1.2rem;
-  cursor: pointer;
-  padding: 0.2rem 0.4rem;
-}
-.player-close button:hover { color: var(--text); }
-.player-embed-wrap {
-  position: relative;
-  width: 100%;
-  padding-bottom: 56.25%;
-  background: #000;
-  flex-shrink: 0;
-}
-.player-embed-wrap iframe {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  border: none;
-}
-.player-info {
-  padding: 1rem;
-  overflow-y: auto;
-  flex: 1;
-}
-.player-info h3 {
-  font-size: 0.9rem;
-  font-weight: 700;
-  line-height: 1.4;
-  margin-bottom: 0.4rem;
-}
-.player-info p {
-  font-size: 0.72rem;
-  color: var(--muted);
-}
-
-/* Videos pane */
-.videos-pane {
-  flex: 1;
-  overflow-y: auto;
-  padding: 1rem;
-  scrollbar-width: thin;
-  scrollbar-color: var(--border) transparent;
-}
-
-/* Loading banner */
-.load-banner {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  padding: 0.7rem 1rem;
-  background: rgba(255,60,95,0.08);
-  border: 1px solid rgba(255,60,95,0.2);
-  border-radius: 8px;
-  margin-bottom: 1rem;
-  font-size: 0.78rem;
-  color: var(--accent);
-}
-.mini-spinner {
-  width: 16px;
-  height: 16px;
-  border: 2px solid rgba(255,60,95,0.3);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-  flex-shrink: 0;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* Grid */
-.video-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 0.9rem;
-}
-
-.video-card {
-  cursor: pointer;
-  border-radius: 8px;
-  overflow: hidden;
-  background: var(--card);
-  border: 1px solid var(--border);
-  transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
-}
-.video-card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(255,60,95,0.5);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.4);
-}
-.video-card.active {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 1px var(--accent);
-}
-.thumb-wrap {
-  position: relative;
-  padding-bottom: 56.25%;
-  background: #111;
-}
-.thumb-wrap img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.play-btn {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0,0,0,0);
-  transition: background 0.15s;
-}
-.video-card:hover .play-btn { background: rgba(0,0,0,0.35); }
-.play-icon {
-  width: 34px;
-  height: 34px;
-  background: rgba(255,60,95,0.9);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transform: scale(0.85);
-  transition: opacity 0.15s, transform 0.15s;
-}
-.play-icon svg { width: 13px; fill: white; margin-left: 2px; }
-.video-card:hover .play-icon,
-.video-card.active .play-icon { opacity: 1; transform: scale(1); }
-
-.video-meta {
-  padding: 0.55rem 0.65rem 0.65rem;
-}
-.video-meta h4 {
-  font-size: 0.73rem;
-  font-weight: 700;
-  line-height: 1.3;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-.video-meta .date {
-  font-size: 0.62rem;
-  color: var(--muted);
-  margin-top: 0.25rem;
-  display: block;
-}
-
-/* Load more */
-.load-more-wrap {
-  text-align: center;
-  padding: 1.5rem 0 2rem;
-}
-.load-more-btn {
-  background: var(--card);
-  border: 1px solid var(--border);
-  color: var(--text);
-  padding: 0.7rem 2rem;
-  border-radius: 20px;
-  font-family: 'Noto Sans KR', sans-serif;
-  font-size: 0.82rem;
-  cursor: pointer;
-  transition: border-color 0.2s, color 0.2s;
-}
-.load-more-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-.no-results {
-  text-align: center;
-  padding: 3rem 1rem;
-  color: var(--muted);
-  font-size: 0.85rem;
-}
+.sv-swipe-hint.top{top:52px;}
+.sv-swipe-hint.bottom-hint{bottom:8px;}
+@keyframes svFadeHint{0%{opacity:1}70%{opacity:1}100%{opacity:0}}
 </style>
 </head>
 <body>
 
-<!-- ═══ SETUP SCREEN ═══ -->
-<div id="setup-screen">
-  <div class="setup-box">
-    <div class="setup-logo">STRAY KIDS</div>
-    <div class="setup-sub">스트레이 키즈 · Full Channel Viewer</div>
-
-    <div class="setup-error" id="setup-error"></div>
-
-    <label class="setup-label" for="api-input">YouTube API Key</label>
-    <input class="setup-input" id="api-input" type="text" placeholder="AIza..." autocomplete="off" autocorrect="off" spellcheck="false">
-    <button class="setup-btn" onclick="saveKey()">STARTEN ▶</button>
-
-    <div class="setup-steps">
-      <h3>Einmalige Einrichtung — kostenlos</h3>
-      <div class="step">
-        <div class="step-num">1</div>
-        <p>Geh auf <a href="https://console.cloud.google.com/" target="_blank">console.cloud.google.com</a> und erstelle ein neues Projekt (oben links).</p>
-      </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <p>Suche nach „YouTube Data API v3" und aktiviere sie.</p>
-      </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <p>Geh zu <b>APIs & Dienste → Anmeldedaten → API-Schlüssel erstellen</b>. Den Key kopieren und oben einfügen.</p>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ MAIN APP ═══ -->
 <div id="app">
   <div class="header">
     <div class="header-logo">SKZ</div>
-    <div class="channel-tabs">
-      <button class="ch-tab active" onclick="switchChannel('all', this)">Alle</button>
-      <button class="ch-tab" onclick="switchChannel('main', this)">🌍 Main</button>
-      <button class="ch-tab" onclick="switchChannel('japan', this)">🇯🇵 Japan</button>
-      <button class="ch-tab" onclick="switchChannel('jyp', this)">🎵 JYP</button>
+    <div class="ch-tabs">
+      <button class="ch-tab active" onclick="switchChannel('all',this)">Alle</button>
+      <button class="ch-tab" onclick="switchChannel('main',this)">🌍 Main</button>
+      <button class="ch-tab" onclick="switchChannel('japan',this)">🇯🇵 Japan</button>
+      <button class="ch-tab" onclick="switchChannel('jyp',this)">🎵 JYP</button>
     </div>
     <div class="search-wrap">
-      <input type="text" id="search-input" placeholder="Video suchen…" oninput="filterVideos()">
+      <input type="text" id="search-input" placeholder="Video suchen…" oninput="onFilter()">
     </div>
     <div class="header-count" id="header-count">Laden…</div>
   </div>
 
+  <div class="filter-bar">
+    <span class="filter-label">Filter</span>
+    <button class="f-btn" id="btn-heart" onclick="toggleHeartFilter()">❤️ Geherzt</button>
+    <div class="filter-sep"></div>
+    <button class="f-btn type-active" id="btn-all"    onclick="setTypeFilter('all',this)">Alle</button>
+    <button class="f-btn"             id="btn-shorts" onclick="setTypeFilter('shorts',this)">📱 Shorts</button>
+    <button class="f-btn"             id="btn-videos" onclick="setTypeFilter('videos',this)">🎬 Videos</button>
+    <div class="filter-sep" id="sv-sep" style="display:none;"></div>
+    <button class="f-btn sv-btn" id="btn-sv" style="display:none;" onclick="openShortsViewer(0)">▶ Shorts Viewer</button>
+  </div>
+
   <div class="content">
-    <!-- Player -->
     <div class="player-pane" id="player-pane">
       <div class="player-close"><button onclick="closePlayer()">✕ Schließen</button></div>
       <div class="player-embed-wrap">
@@ -496,258 +225,297 @@ body {
       </div>
       <div class="player-info">
         <h3 id="player-title">—</h3>
-        <p id="player-date">—</p>
+        <div class="player-meta-row">
+          <span class="player-date" id="player-date"></span>
+          <button class="player-heart-btn" id="player-heart-btn" onclick="togglePlayerHeart()">♥ Herzen</button>
+        </div>
       </div>
     </div>
-
-    <!-- Videos -->
-    <div class="videos-pane" id="videos-pane">
+    <div class="videos-pane">
       <div class="load-banner" id="load-banner">
         <div class="mini-spinner"></div>
-        <span id="load-text">Kanal wird geladen…</span>
+        <span id="load-text">Kanäle werden geladen…</span>
       </div>
       <div class="video-grid" id="video-grid"></div>
       <div class="load-more-wrap" id="load-more-wrap" style="display:none;">
-        <button class="load-more-btn" onclick="fetchNextPage()">Mehr laden…</button>
+        <button class="load-more-btn" onclick="renderMore()">Mehr laden…</button>
       </div>
       <div class="no-results" id="no-results" style="display:none;">Keine Videos gefunden.</div>
     </div>
   </div>
 </div>
 
-<script>
-const CHANNELS = {
-  main:  { id: 'UC9rMiEjNaCSsebs31MRDCRA', label: 'Main',  playlist: 'UU9rMiEjNaCSsebs31MRDCRA' },
-  japan: { id: 'UCXhj2pPWvONXmvgHX5wllCA', label: 'Japan', playlist: 'UUXhj2pPWvONXmvgHX5wllCA' },
-  jyp:   { label: 'JYP',   playlist: 'PL9K3xwFkFqWEUOC39i3GD1mio7QMGveuU' },
-};
-const API_KEY = 'AIzaSyDLEWmtYLea8lWLaPe3CIC-JeQrDi5e974';
-const PAGE_SIZE = 50;
-const DISPLAY_BATCH = 50;
+<!-- ═══ SHORTS VIEWER ═══ -->
+<div id="sv-overlay">
 
-const state = {
-  main:  { videos: [], nextToken: null, done: false, fetching: false },
-  japan: { videos: [], nextToken: null, done: false, fetching: false },
-  jyp:   { videos: [], nextToken: null, done: false, fetching: false },
-};
+  <!-- TOP: swipe zone + header -->
+  <div class="sv-top" id="sv-top">
+    <div class="sv-top-left">
+      <span class="sv-brand">SKZ SHORTS</span>
+      <span class="sv-counter" id="sv-counter">1 / 1</span>
+    </div>
+    <button class="sv-close-btn" onclick="closeShortsViewer()">✕</button>
+  </div>
 
-let allVideos = [];       // merged & sorted
-let filteredVideos = [];
-let displayedCount = 0;
-let activeId = null;
-let activeChannel = 'all'; // 'all' | 'main' | 'japan' | 'jyp'
+  <!-- VIDEO: iframe only, no overlapping custom UI -->
+  <div class="sv-video-wrap" id="sv-video-wrap">
+    <div class="sv-iframe-box" id="sv-iframe-box">
+      <iframe id="sv-iframe"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen></iframe>
+    </div>
+  </div>
 
-window.onload = () => {
-  document.getElementById('setup-screen').style.display = 'none';
-  document.getElementById('app').style.display = 'flex';
-  fetchChannel('main');
-  fetchChannel('japan');
-  fetchChannel('jyp');
-};
-
-// ── FETCH ──
-async function fetchChannel(ch) {
-  const s = state[ch];
-  if (s.fetching || s.done) return;
-  s.fetching = true;
-
-  const url = new URL('https://www.googleapis.com/youtube/v3/playlistItems');
-  url.searchParams.set('part', 'snippet');
-  url.searchParams.set('playlistId', CHANNELS[ch].playlist);
-  url.searchParams.set('maxResults', PAGE_SIZE);
-  url.searchParams.set('key', API_KEY);
-  if (s.nextToken) url.searchParams.set('pageToken', s.nextToken);
-
-  try {
-    const res = await fetch(url);
-    const data = await res.json();
-
-    if (data.error) {
-      document.getElementById('load-text').textContent = 'API-Fehler: ' + data.error.message;
-      s.fetching = false;
-      return;
-    }
-
-    const items = (data.items || [])
-      .filter(i => i.snippet.resourceId?.kind === 'youtube#video')
-      .map(i => ({
-        id:      i.snippet.resourceId.videoId,
-        title:   i.snippet.title,
-        date:    i.snippet.publishedAt ? i.snippet.publishedAt.slice(0, 10) : '',
-        thumb:   (i.snippet.thumbnails?.medium || i.snippet.thumbnails?.default)?.url || '',
-        channel: ch,
-      }))
-      .filter(v => v.title !== 'Private video' && v.title !== 'Deleted video');
-
-    s.videos.push(...items);
-    s.nextToken = data.nextPageToken || null;
-    if (!s.nextToken) s.done = true;
-
-    rebuildAll();
-    applyFilter();
-    refreshGrid();
-    updateStatus();
-
-    s.fetching = false;
-    if (!s.done) setTimeout(() => fetchChannel(ch), 250);
-
-  } catch (e) {
-    s.fetching = false;
-    document.getElementById('load-text').textContent = 'Netzwerkfehler – bitte neu laden.';
-  }
-}
-
-function rebuildAll() {
-  allVideos = [...state.main.videos, ...state.japan.videos, ...state.jyp.videos]
-    .sort((a, b) => (b.date > a.date ? 1 : b.date < a.date ? -1 : 0));
-}
-
-function updateStatus() {
-  const allDone = state.main.done && state.japan.done && state.jyp.done;
-  const total = state.main.videos.length + state.japan.videos.length + state.jyp.videos.length;
-  const banner = document.getElementById('load-banner');
-  const loadText = document.getElementById('load-text');
-  if (allDone) {
-    loadText.textContent = `Alle ${total} Videos geladen.`;
-    setTimeout(() => banner.style.display = 'none', 1500);
-  } else {
-    loadText.textContent = `${total} Videos geladen…`;
-  }
-  updateCount();
-}
-
-// ── CHANNEL SWITCH ──
-function switchChannel(ch, btn) {
-  activeChannel = ch;
-  document.querySelectorAll('.ch-tab').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  applyFilter();
-  document.getElementById('video-grid').innerHTML = '';
-  displayedCount = 0;
-  renderMore();
-  updateCount();
-}
-
-// ── FILTER & RENDER ──
-function applyFilter() {
-  const q = document.getElementById('search-input').value.trim().toLowerCase();
-  let source = activeChannel === 'all'   ? allVideos
-             : activeChannel === 'main'  ? state.main.videos
-             : activeChannel === 'japan' ? state.japan.videos
-             : state.jyp.videos;
-  filteredVideos = q ? source.filter(v => v.title.toLowerCase().includes(q)) : source;
-  displayedCount = 0;
-}
-
-function filterVideos() {
-  applyFilter();
-  document.getElementById('video-grid').innerHTML = '';
-  renderMore();
-  document.getElementById('no-results').style.display =
-    filteredVideos.length === 0 ? 'block' : 'none';
-}
-
-function refreshGrid() {
-  // only append newly loaded items without wiping the grid
-  const grid = document.getElementById('video-grid');
-  const end = Math.min(displayedCount + DISPLAY_BATCH, filteredVideos.length);
-  for (let i = displayedCount; i < end; i++) {
-    grid.appendChild(makeCard(filteredVideos[i]));
-  }
-  displayedCount = end;
-  updateLoadMore();
-}
-
-function renderMore() {
-  const grid = document.getElementById('video-grid');
-  const end = Math.min(displayedCount + DISPLAY_BATCH, filteredVideos.length);
-  for (let i = displayedCount; i < end; i++) {
-    grid.appendChild(makeCard(filteredVideos[i]));
-  }
-  displayedCount = end;
-  updateLoadMore();
-}
-
-function updateLoadMore() {
-  const hasMore = displayedCount < filteredVideos.length;
-  const wrap = document.getElementById('load-more-wrap');
-  if (hasMore) {
-    wrap.style.display = 'block';
-    wrap.querySelector('button').textContent =
-      `Mehr laden (${filteredVideos.length - displayedCount} weitere)`;
-  } else {
-    wrap.style.display = 'none';
-  }
-}
-
-function makeCard(v) {
-  const card = document.createElement('div');
-  card.className = 'video-card' + (v.id === activeId ? ' active' : '');
-  card.id = 'card-' + v.id;
-  const badge = v.channel === 'japan' ? `<span style="position:absolute;top:5px;left:5px;background:rgba(0,0,0,0.7);color:#ff9d00;font-size:0.58rem;font-weight:700;padding:1px 5px;border-radius:3px;letter-spacing:0.05em;">🇯🇵 JP</span>`
-              : v.channel === 'jyp'   ? `<span style="position:absolute;top:5px;left:5px;background:rgba(0,0,0,0.7);color:#a78bfa;font-size:0.58rem;font-weight:700;padding:1px 5px;border-radius:3px;letter-spacing:0.05em;">JYP</span>`
-              : '';
-  card.innerHTML = `
-    <div class="thumb-wrap">
-      <img src="${v.thumb}" alt="" loading="lazy">
-      ${badge}
-      <div class="play-btn">
-        <div class="play-icon">
-          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-        </div>
+  <!-- BOTTOM: swipe zone + controls -->
+  <div class="sv-bottom" id="sv-bottom">
+    <div class="sv-bottom-row1">
+      <button class="sv-heart-btn" id="sv-heart-btn" onclick="svToggleHeart()">♥</button>
+      <span class="sv-title" id="sv-title">—</span>
+      <div class="sv-nav-btns">
+        <button class="sv-nav-btn" id="sv-prev" onclick="svGo(-1)" title="Vorheriges">▲</button>
+        <button class="sv-nav-btn" id="sv-next" onclick="svGo(+1)" title="Nächstes">▼</button>
       </div>
     </div>
-    <div class="video-meta">
-      <h4>${escHtml(v.title)}</h4>
-      <span class="date">${formatDate(v.date)}</span>
-    </div>`;
-  card.addEventListener('click', () => playVideo(v));
+    <div class="sv-date" id="sv-date"></div>
+  </div>
+
+</div>
+
+<script>
+const CHANNELS={main:{playlist:'UU9rMiEjNaCSsebs31MRDCRA'},japan:{playlist:'UUXhj2pPWvONXmvgHX5wllCA'},jyp:{playlist:'PL9K3xwFkFqWEUOC39i3GD1mio7QMGveuU'}};
+const API_KEY='AIzaSyDLEWmtYLea8lWLaPe3CIC-JeQrDi5e974';
+const PAGE_SIZE=50,DISPLAY_BATCH=50;
+const state={main:{videos:[],nextToken:null,done:false,fetching:false},japan:{videos:[],nextToken:null,done:false,fetching:false},jyp:{videos:[],nextToken:null,done:false,fetching:false}};
+let allVideos=[],filteredVideos=[],displayedCount=0;
+let activeId=null,activeChannel='all',typeFilter='all',heartFilter=false;
+let hearts=new Set(JSON.parse(localStorage.getItem('skz_hearts')||'[]'));
+let renderTimer=null;
+let svList=[],svIndex=0,svAnimating=false;
+
+window.onload=()=>{document.getElementById('app').style.display='flex';fetchChannel('main');fetchChannel('japan');fetchChannel('jyp');};
+
+async function fetchChannel(ch){
+  const s=state[ch];if(s.fetching||s.done)return;s.fetching=true;
+  const url=new URL('https://www.googleapis.com/youtube/v3/playlistItems');
+  url.searchParams.set('part','snippet');url.searchParams.set('playlistId',CHANNELS[ch].playlist);
+  url.searchParams.set('maxResults',PAGE_SIZE);url.searchParams.set('key',API_KEY);
+  if(s.nextToken)url.searchParams.set('pageToken',s.nextToken);
+  try{
+    const res=await fetch(url),data=await res.json();
+    if(data.error){document.getElementById('load-text').textContent='API-Fehler: '+data.error.message;s.fetching=false;return;}
+    const raw=(data.items||[]).filter(i=>i.snippet.resourceId?.kind==='youtube#video')
+      .map(i=>({id:i.snippet.resourceId.videoId,title:i.snippet.title,date:(i.snippet.publishedAt||'').slice(0,10),thumb:(i.snippet.thumbnails?.medium||i.snippet.thumbnails?.default)?.url||'',channel:ch,isShort:null}))
+      .filter(v=>v.title!=='Private video'&&v.title!=='Deleted video');
+    const ids=raw.map(v=>v.id).join(',');
+    if(ids){
+      const du=new URL('https://www.googleapis.com/youtube/v3/videos');
+      du.searchParams.set('part','contentDetails');du.searchParams.set('id',ids);du.searchParams.set('key',API_KEY);
+      try{const dr=await fetch(du),dd=await dr.json();const dm={};(dd.items||[]).forEach(x=>dm[x.id]=parseDuration(x.contentDetails.duration));raw.forEach(v=>{v.isShort=(dm[v.id]??999)<=60;});}
+      catch(_){raw.forEach(v=>{v.isShort=false;});}
+    }
+    s.videos.push(...raw);s.nextToken=data.nextPageToken||null;if(!s.nextToken)s.done=true;
+    rebuildAll();updateStatus();
+    clearTimeout(renderTimer);renderTimer=setTimeout(()=>rerender(Math.max(displayedCount,DISPLAY_BATCH)),80);
+    s.fetching=false;if(!s.done)setTimeout(()=>fetchChannel(ch),300);
+  }catch(e){s.fetching=false;document.getElementById('load-text').textContent='Netzwerkfehler – bitte neu laden.';}
+}
+
+function parseDuration(iso){if(!iso)return 0;const m=iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);if(!m)return 0;return(parseInt(m[1]||0)*3600)+(parseInt(m[2]||0)*60)+parseInt(m[3]||0);}
+
+function rebuildAll(){allVideos=[...state.main.videos,...state.japan.videos,...state.jyp.videos].sort((a,b)=>b.date>a.date?1:b.date<a.date?-1:0);}
+
+function buildFiltered(){
+  const q=document.getElementById('search-input').value.trim().toLowerCase();
+  let src=activeChannel==='all'?allVideos:activeChannel==='main'?state.main.videos:activeChannel==='japan'?state.japan.videos:state.jyp.videos;
+  if(heartFilter)src=src.filter(v=>hearts.has(v.id));
+  if(typeFilter==='shorts')src=src.filter(v=>v.isShort===true);
+  if(typeFilter==='videos')src=src.filter(v=>v.isShort===false);
+  filteredVideos=q?src.filter(v=>v.title.toLowerCase().includes(q)):src;
+}
+
+function rerender(upTo){
+  buildFiltered();const grid=document.getElementById('video-grid');grid.innerHTML='';displayedCount=0;
+  const end=Math.min(upTo,filteredVideos.length);
+  for(let i=0;i<end;i++)grid.appendChild(makeCard(filteredVideos[i]));
+  displayedCount=end;updateLoadMore();
+  document.getElementById('no-results').style.display=filteredVideos.length===0?'block':'none';
+  updateSVButton();
+}
+function renderMore(){
+  buildFiltered();const grid=document.getElementById('video-grid');
+  const end=Math.min(displayedCount+DISPLAY_BATCH,filteredVideos.length);
+  for(let i=displayedCount;i<end;i++)grid.appendChild(makeCard(filteredVideos[i]));
+  displayedCount=end;updateLoadMore();
+}
+function updateLoadMore(){const has=displayedCount<filteredVideos.length;const w=document.getElementById('load-more-wrap');w.style.display=has?'block':'none';if(has)w.querySelector('button').textContent=`Mehr laden (${filteredVideos.length-displayedCount} weitere)`;}
+function updateStatus(){const done=state.main.done&&state.japan.done&&state.jyp.done;const tot=state.main.videos.length+state.japan.videos.length+state.jyp.videos.length;document.getElementById('load-text').textContent=done?`Alle ${tot} Videos geladen.`:`${tot} Videos geladen…`;if(done)setTimeout(()=>document.getElementById('load-banner').style.display='none',1500);updateCount();}
+function updateCount(){const n=activeChannel==='all'?allVideos.length:activeChannel==='main'?state.main.videos.length:activeChannel==='japan'?state.japan.videos.length:state.jyp.videos.length;const loading=activeChannel==='all'?!(state.main.done&&state.japan.done&&state.jyp.done):activeChannel==='main'?!state.main.done:activeChannel==='japan'?!state.japan.done:!state.jyp.done;document.getElementById('header-count').textContent=n+' Videos'+(loading?' (lädt…)':'');}
+
+function updateSVButton(){
+  const sh=filteredVideos.filter(v=>v.isShort===true);const show=sh.length>0;
+  document.getElementById('btn-sv').style.display=show?'inline-block':'none';
+  document.getElementById('sv-sep').style.display=show?'block':'none';
+  if(show)document.getElementById('btn-sv').textContent=`▶ Shorts Viewer (${sh.length})`;
+}
+
+function switchChannel(ch,btn){activeChannel=ch;document.querySelectorAll('.ch-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');displayedCount=0;rerender(DISPLAY_BATCH);updateCount();}
+function setTypeFilter(type,btn){typeFilter=type;document.querySelectorAll('#btn-all,#btn-shorts,#btn-videos').forEach(b=>b.classList.remove('type-active'));btn.classList.add('type-active');displayedCount=0;rerender(DISPLAY_BATCH);}
+function toggleHeartFilter(){heartFilter=!heartFilter;document.getElementById('btn-heart').classList.toggle('heart-active',heartFilter);displayedCount=0;rerender(DISPLAY_BATCH);}
+function onFilter(){displayedCount=0;rerender(DISPLAY_BATCH);}
+
+function makeCard(v){
+  const card=document.createElement('div');card.className='video-card'+(v.id===activeId?' active':'');card.id='card-'+v.id;
+  const bc=v.channel==='japan'?'#ff9d00':v.channel==='jyp'?'#a78bfa':'#ff3c5f';
+  const bt=v.channel==='japan'?'🇯🇵 JP':v.channel==='jyp'?'JYP':'SKZ';
+  const badge=`<span style="position:absolute;top:5px;left:5px;background:rgba(0,0,0,0.75);color:${bc};font-size:0.58rem;font-weight:700;padding:1px 5px;border-radius:3px;">${bt}</span>`;
+  const sb=v.isShort?`<span style="position:absolute;bottom:5px;left:5px;background:rgba(0,0,0,0.75);color:#fff;font-size:0.55rem;font-weight:700;padding:1px 5px;border-radius:3px;">SHORT</span>`:'';
+  card.innerHTML=`<div class="thumb-wrap"><img src="${v.thumb}" alt="" loading="lazy">${badge}${sb}<button class="heart-btn${hearts.has(v.id)?' hearted':''}" title="Herzen">♥</button><div class="play-btn"><div class="play-icon"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div></div><div class="video-meta"><h4>${escHtml(v.title)}</h4><span class="date">${formatDate(v.date)}</span></div>`;
+  card.querySelector('.heart-btn').addEventListener('click',e=>{e.stopPropagation();toggleHeart(v.id,e.currentTarget);});
+  card.addEventListener('click',()=>{
+    if(v.isShort){buildFiltered();const shorts=filteredVideos.filter(x=>x.isShort===true);const idx=shorts.findIndex(x=>x.id===v.id);openShortsViewer(idx>=0?idx:0,shorts);}
+    else playVideo(v);
+  });
   return card;
 }
 
-function updateCount() {
-  const shown = activeChannel === 'all'   ? allVideos.length
-              : activeChannel === 'main'  ? state.main.videos.length
-              : activeChannel === 'japan' ? state.japan.videos.length
-              : state.jyp.videos.length;
-  const loading = activeChannel === 'all'   ? !(state.main.done && state.japan.done && state.jyp.done)
-                : activeChannel === 'main'  ? !state.main.done
-                : activeChannel === 'japan' ? !state.japan.done
-                : !state.jyp.done;
-  document.getElementById('header-count').textContent =
-    shown + ' Videos' + (loading ? ' (lädt…)' : '');
+function toggleHeart(id,cardBtn){
+  const now=!hearts.has(id);
+  if(now){hearts.add(id);if(cardBtn){cardBtn.classList.add('hearted');cardBtn.style.transform='scale(1.3)';setTimeout(()=>cardBtn.style.transform='',200);}}
+  else{hearts.delete(id);if(cardBtn)cardBtn.classList.remove('hearted');}
+  localStorage.setItem('skz_hearts',JSON.stringify([...hearts]));
+  if(id===activeId)syncPlayerHeartBtn();
+  if(svList[svIndex]&&id===svList[svIndex].id)syncSVHeartBtn();
+  if(heartFilter&&!now){document.getElementById('card-'+id)?.remove();buildFiltered();updateLoadMore();document.getElementById('no-results').style.display=filteredVideos.length===0?'block':'none';}
+}
+function togglePlayerHeart(){if(!activeId)return;toggleHeart(activeId,document.querySelector('#card-'+activeId+' .heart-btn'));syncPlayerHeartBtn();}
+function syncPlayerHeartBtn(){const btn=document.getElementById('player-heart-btn');if(!btn||!activeId)return;if(hearts.has(activeId)){btn.textContent='♥ Geherzt';btn.classList.add('hearted');}else{btn.textContent='♥ Herzen';btn.classList.remove('hearted');}}
+
+function playVideo(v){
+  activeId=v.id;document.querySelectorAll('.video-card.active').forEach(c=>c.classList.remove('active'));document.getElementById('card-'+v.id)?.classList.add('active');
+  document.getElementById('player-iframe').src=`https://www.youtube-nocookie.com/embed/${v.id}?autoplay=1&rel=0&modestbranding=1`;
+  document.getElementById('player-title').textContent=v.title;document.getElementById('player-date').textContent=formatDate(v.date);
+  syncPlayerHeartBtn();document.getElementById('player-pane').classList.add('open');
+}
+function closePlayer(){document.getElementById('player-pane').classList.remove('open');document.getElementById('player-iframe').src='';activeId=null;document.querySelectorAll('.video-card.active').forEach(c=>c.classList.remove('active'));}
+
+// ═══ SHORTS VIEWER ═══
+function openShortsViewer(startIndex,list){
+  buildFiltered();
+  svList=list||filteredVideos.filter(v=>v.isShort===true);
+  if(!svList.length)return;
+  svIndex=Math.max(0,Math.min(startIndex,svList.length-1));
+  document.getElementById('sv-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+  svLoadVideo(svIndex,null);
+  svAttachEvents();
+}
+function closeShortsViewer(){
+  document.getElementById('sv-overlay').classList.remove('open');
+  document.getElementById('sv-iframe').src='';
+  document.body.style.overflow='';
+  svDetachEvents();
 }
 
-// ── PLAYER ──
-function playVideo(v) {
-  activeId = v.id;
-  document.querySelectorAll('.video-card.active').forEach(c => c.classList.remove('active'));
-  const card = document.getElementById('card-' + v.id);
-  if (card) card.classList.add('active');
-  document.getElementById('player-iframe').src =
-    `https://www.youtube-nocookie.com/embed/${v.id}?autoplay=1&rel=0&modestbranding=1`;
-  document.getElementById('player-title').textContent = v.title;
-  document.getElementById('player-date').textContent = formatDate(v.date);
-  document.getElementById('player-pane').classList.add('open');
+function svLoadVideo(idx,dir){
+  const v=svList[idx];if(!v)return;
+  const box=document.getElementById('sv-iframe-box');
+  const iframe=document.getElementById('sv-iframe');
+
+  if(dir!==null){
+    const exitCls=dir>0?'sv-exit-up':'sv-exit-down';
+    const enterCls=dir>0?'sv-enter-up':'sv-enter-down';
+    box.className='sv-iframe-box '+exitCls;
+    iframe.src='';
+    setTimeout(()=>{
+      box.className='sv-iframe-box '+enterCls;
+      iframe.src=`https://www.youtube-nocookie.com/embed/${v.id}?autoplay=1&rel=0`;
+      setTimeout(()=>box.className='sv-iframe-box',280);
+    },260);
+  } else {
+    iframe.src=`https://www.youtube-nocookie.com/embed/${v.id}?autoplay=1&rel=0`;
+  }
+
+  document.getElementById('sv-title').textContent=v.title;
+  document.getElementById('sv-date').textContent=formatDate(v.date);
+  document.getElementById('sv-counter').textContent=`${idx+1} / ${svList.length}`;
+  document.getElementById('sv-prev').disabled=idx===0;
+  document.getElementById('sv-next').disabled=idx===svList.length-1;
+  syncSVHeartBtn();
 }
 
-function closePlayer() {
-  document.getElementById('player-pane').classList.remove('open');
-  document.getElementById('player-iframe').src = '';
-  activeId = null;
-  document.querySelectorAll('.video-card.active').forEach(c => c.classList.remove('active'));
+function svGo(dir){
+  if(svAnimating)return;
+  const next=svIndex+dir;
+  if(next<0||next>=svList.length)return;
+  svAnimating=true;svIndex=next;
+  svLoadVideo(svIndex,dir);
+  setTimeout(()=>svAnimating=false,300);
 }
 
-// ── HELPERS ──
-function escHtml(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function svToggleHeart(){
+  const v=svList[svIndex];if(!v)return;
+  toggleHeart(v.id,document.querySelector('#card-'+v.id+' .heart-btn'));
+  syncSVHeartBtn();
 }
-function formatDate(d) {
-  if (!d) return '';
-  const [y, m, day] = d.split('-');
-  const months = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
-  return `${parseInt(day)}. ${months[parseInt(m)-1]} ${y}`;
+function syncSVHeartBtn(){
+  const v=svList[svIndex];if(!v)return;
+  const btn=document.getElementById('sv-heart-btn');
+  btn.classList.toggle('hearted',hearts.has(v.id));
 }
+
+// ── Swipe on top/bottom bars (OUTSIDE iframe so events fire correctly) ──
+let svTY0=null;
+function svTouchStart(e){svTY0=e.touches[0].clientY;}
+function svTouchEnd(e){
+  if(svTY0===null)return;
+  const dy=svTY0-e.changedTouches[0].clientY;
+  if(Math.abs(dy)>40)svGo(dy>0?1:-1);
+  svTY0=null;
+}
+
+// ── Wheel on the overlay background (bg area beside/around the iframe) ──
+let svWheelDebounce=null;
+function svOnWheel(e){
+  // Only fire from the background (not from inside the iframe — iframe blocks it anyway)
+  e.preventDefault();
+  clearTimeout(svWheelDebounce);
+  svWheelDebounce=setTimeout(()=>svGo(e.deltaY>0?1:-1),50);
+}
+
+function svOnKey(e){
+  if(!document.getElementById('sv-overlay').classList.contains('open'))return;
+  if(e.key==='ArrowDown')svGo(1);
+  else if(e.key==='ArrowUp')svGo(-1);
+  else if(e.key==='Escape')closeShortsViewer();
+}
+
+function svAttachEvents(){
+  const top=document.getElementById('sv-top');
+  const bot=document.getElementById('sv-bottom');
+  const ov=document.getElementById('sv-overlay');
+  // Swipe on top and bottom bars (outside iframe)
+  top.addEventListener('touchstart',svTouchStart,{passive:true});
+  top.addEventListener('touchend',svTouchEnd,{passive:true});
+  bot.addEventListener('touchstart',svTouchStart,{passive:true});
+  bot.addEventListener('touchend',svTouchEnd,{passive:true});
+  // Wheel on overlay bg
+  ov.addEventListener('wheel',svOnWheel,{passive:false});
+  document.addEventListener('keydown',svOnKey);
+}
+function svDetachEvents(){
+  const top=document.getElementById('sv-top');
+  const bot=document.getElementById('sv-bottom');
+  const ov=document.getElementById('sv-overlay');
+  top.removeEventListener('touchstart',svTouchStart);
+  top.removeEventListener('touchend',svTouchEnd);
+  bot.removeEventListener('touchstart',svTouchStart);
+  bot.removeEventListener('touchend',svTouchEnd);
+  ov.removeEventListener('wheel',svOnWheel);
+  document.removeEventListener('keydown',svOnKey);
+}
+
+function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function formatDate(d){if(!d)return'';const[y,m,day]=d.split('-');const mo=['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];return`${parseInt(day)}. ${mo[parseInt(m)-1]} ${y}`;}
 </script>
 </body>
 </html>
