@@ -182,7 +182,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-seri
         <h3 id="player-title">—</h3>
         <div class="player-meta-row">
           <span class="player-date" id="player-date"></span>
-          <button class="player-heart-btn" id="player-heart-btn" onclick="togglePlayerHeart()">♥ Herzen</button>
+          <button class="player-heart-btn" id="player-heart-btn" onclick="togglePlayerHeart()">♥ Mag Ich</button>
         </div>
       </div>
     </div>
@@ -427,7 +427,7 @@ function toggleHeart(id){
   }
 }
 function togglePlayerHeart(){if(!activeId)return;toggleHeart(activeId);syncPlayerHeartBtn();}
-function syncPlayerHeartBtn(){const btn=document.getElementById('player-heart-btn');if(!btn||!activeId)return;if(hearts.has(activeId)){btn.textContent='♥ Mag Ich';btn.classList.add('hearted');}else{btn.textContent='♥ Herzen';btn.classList.remove('hearted');}}
+function syncPlayerHeartBtn(){const btn=document.getElementById('player-heart-btn');if(!btn||!activeId)return;if(hearts.has(activeId)){btn.textContent='♥ Mag Ich';btn.classList.add('hearted');}else{btn.textContent='♥ Mag Ich';btn.classList.remove('hearted');}}
 
 // ── SIDE PLAYER ──
 function playVideo(v){
