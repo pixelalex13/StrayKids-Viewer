@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SKZ">
+<meta name="mobile-web-app-capable" content="yes">
 <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
 <title>Stray Kids ☆ Viewer</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
@@ -47,7 +51,14 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-seri
 .player-pane.open{width:min(480px,100vw);}
 @media(max-width:700px){.player-pane.open{position:fixed;inset:0;width:100%;z-index:200;}}
 .player-close{display:flex;align-items:center;justify-content:flex-end;padding:calc(0.5rem + var(--safe-top)) 0.8rem 0.5rem;background:var(--surface);border-bottom:1px solid var(--border);}
-.player-close button{background:none;border:none;color:var(--muted);font-size:1.4rem;cursor:pointer;padding:0.3rem 0.6rem;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:flex-end;touch-action:manipulation;}
+.player-close button{
+  background:rgba(255,255,255,0.08);border:1px solid var(--border);
+  color:var(--text);font-size:1rem;cursor:pointer;
+  padding:0.3rem 0.7rem;min-width:44px;min-height:36px;
+  border-radius:6px;display:flex;align-items:center;justify-content:center;
+  touch-action:manipulation;transition:background 0.15s;
+}
+.player-close button:hover{background:rgba(255,255,255,0.15);}
 .player-embed-wrap{position:relative;width:100%;padding-bottom:56.25%;background:#000;flex-shrink:0;}
 .player-embed-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:none;}
 .player-info{padding:1rem;overflow-y:auto;flex:1;-webkit-overflow-scrolling:touch;}
